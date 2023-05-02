@@ -1,5 +1,7 @@
 # cloudplication utils
 
+Programmatic API for the frontend database www.cloudplication.com
+
 ## Installation
 * npm
   ```sh
@@ -7,6 +9,29 @@
   ```
   
 ## Usage
+
+If you like a class based approach more, there is one.
+```js
+   const {CLP} = require("clp-utils");
+   
+   const myClass = new CLP();
+   
+   myClass.loginCredentials();
+   myClass.loginToken();
+   
+   myClass.create();
+   myClass.createFile();
+   myClass.read();
+   myClass.readFile();
+   myClass.update();
+   myClass.updateFile();
+   myClass.delete();
+   myClass.deleteFile();
+   
+   myClass.listen();
+   myClass.unlisten();
+```
+
 ### Auth Handling
 
 loginCredentials Login with credentials
@@ -159,6 +184,7 @@ LISTEN Register listener to database changes
    const {success, listen, unlisten} = await LISTEN(workDirectory);
    if (success && listen) {
    // invoke listen with your function
+   // listen(fn) e.g.
     listen((data) => {
       const positions = data.positions;
       for (const change of positions) {
@@ -174,8 +200,8 @@ LISTEN Register listener to database changes
           }
         }
       }
-		})
-	}
+    });
+   }
    
 ```
 UNLISTEN Unregister listener from database changes
