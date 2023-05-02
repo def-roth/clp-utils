@@ -158,12 +158,21 @@ class ConnectionHandler {
 	
 	loginSocket = (email, password) => {
 		console.log(this.socket);
-		
-		if (this.socket) this.socket.emit('login', JSON.stringify({email, password}));
+		if (this.socket.disconnected) {
+			this.reconnectSocket().then(()=>this.socket.emit('login', JSON.stringify({email, password})));
+		}
+		else {
+			if (this.socket) this.socket.emit('login', JSON.stringify({email, password}));
+		}
 	};
 	
 	tokenLogin = (webtoken) => {
-		this.socket.emit("cookieLoginRoute", JSON.stringify({webtoken}));
+		if (this.socket.disconnected) {
+			this.reconnectSocket().then(()=>this.socket.emit("cookieLoginRoute", JSON.stringify({webtoken})));
+		}
+		else {
+			this.socket.emit("cookieLoginRoute", JSON.stringify({webtoken}));
+		}
 	}
 	
 	sessionlogin = (reconnect) => {
