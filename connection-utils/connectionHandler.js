@@ -127,6 +127,7 @@ class ConnectionHandler {
 	processServerData = (payload) => {
 		return JSON.parse(payload);
 	}
+
 	
 	changeX = (channel, data) => {
 		if ( this.socket.disconnected && !this.loginchannels[channel] ) {
@@ -156,8 +157,14 @@ class ConnectionHandler {
 	}
 	
 	loginSocket = (email, password) => {
+		console.log(this.socket);
+		
 		if (this.socket) this.socket.emit('login', JSON.stringify({email, password}));
 	};
+	
+	tokenLogin = (webtoken) => {
+		this.socket.emit("cookieLoginRoute", JSON.stringify({webtoken}));
+	}
 	
 	sessionlogin = (reconnect) => {
 		const cookies = JSON.parse(JSON.stringify(document.cookie)).split(';');

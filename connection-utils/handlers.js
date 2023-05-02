@@ -8,6 +8,7 @@ const {
 	processServerData,
 	changeX,
 	loginSocket,
+	tokenLogin,
 	reconnectSocket,
 	cleanupChannel,
 } = socketConnectionHandler;
@@ -20,5 +21,6 @@ module.exports = {
 	loginSocket,
 	cleanupChannel,
 	changeX,
+	tokenLogin,
 	processServerData,
 }

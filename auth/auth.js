@@ -1,5 +1,5 @@
 const {logInRouteListener} = require("../connection-utils/routs");
-const {socket, processServerData, loginSocket} = require("../connection-utils/handlers");
+const {socket, processServerData, loginSocket, tokenLogin} = require("../connection-utils/handlers");
 
 /**
  *
@@ -15,7 +15,7 @@ const loginCredentials = async (
 		
 		socket.on(logInRouteListener, async (data) => {
 			data = processServerData(data);
-			
+			console.log(data)
 			let {
 				firstName,
 				lastName,
