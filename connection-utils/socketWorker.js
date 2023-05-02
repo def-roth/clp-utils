@@ -3,7 +3,6 @@ const {
 	parentPort
 } = require('node:worker_threads');
 const {version, development, domain} = require("../config/config");
-require('dotenv').config();
 
 const devlog = console.log;
 
