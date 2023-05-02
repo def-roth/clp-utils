@@ -1,10 +1,12 @@
 const {io} = require("socket.io-client");
+const {version, development} = require("../config/config");
+const domain = require("domain");
 
 const devlog = console.log;
 
-const _versionControl = process.env.REACT_APP_VERSION_CONTROL;
-const _address = process.env.REACT_APP_DOMAIN;
-const _DEVELOPMENT = process.env.REACT_APP_DEV;
+const _versionControl = version;
+const _address = domain;
+const _DEVELOPMENT = development;
 
 
 const transports = [ "polling", "websocket" ];

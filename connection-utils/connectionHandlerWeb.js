@@ -1,3 +1,4 @@
+const {development, version} = require("../config/config");
 const socketWorker = new Worker(new URL("./socketWorker.js", import.meta.url), {type: "module"});
 
 const proxySocket = {
@@ -98,8 +99,8 @@ function getToken(cookie, key, length) {
 
 class ConnectionHandler {
 	constructor() {
-		this._DEVELOPMENT = process.env.REACT_APP_DEV;
-		this._versionControl = process.env.REACT_APP_VERSION_CONTROL;
+		this._DEVELOPMENT = development;
+		this._versionControl = version;
 		this.loginchannels = {
 			cookieLoginRoute: true,
 			dLink: true,
@@ -112,9 +113,7 @@ class ConnectionHandler {
 		
 		this.socket.on("disconnect", data => {
 			
-			if (process.env.REACT_APP_DEV) {
-				alert("disconnected")
-			}
+		
 			setTimeout(async () => {
 				await this.disconnectClient();
 			}, 1000);
