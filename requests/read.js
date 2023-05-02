@@ -57,9 +57,9 @@ const READ_FILE = async (
 	fn,
 	ft,
 	resourcesId,
-	email,
-	publicQuery,
-	apiSetter,
+	email="",
+	publicQuery=false,
+	apiSetter="",
 ) => {
 	return await _getS3File(
 		workDirectory,
