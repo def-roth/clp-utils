@@ -15,7 +15,6 @@ const loginCredentials = async (
 		
 		socket.on(logInRouteListener, async (data) => {
 			data = processServerData(data);
-			console.log(data)
 			let {
 				firstName,
 				lastName,

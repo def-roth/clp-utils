@@ -157,7 +157,6 @@ class ConnectionHandler {
 	}
 	
 	loginSocket = (email, password) => {
-		console.log(this.socket);
 		if (this.socket.disconnected) {
 			this.reconnectSocket().then(()=>this.socket.emit('login', JSON.stringify({email, password})));
 		}

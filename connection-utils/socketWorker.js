@@ -3,7 +3,7 @@ const {
 	parentPort
 } = require('node:worker_threads');
 const {version, development, domain} = require("../config/config");
-console.log("socket worker up")
+
 const devlog = console.log;
 
 const _versionControl = version;
@@ -129,7 +129,6 @@ class SocketWorker {
 	}
 	
 	onmessage = e => {
-		console.log(e)
 		const {action, channel, data} = e.data;
 		
 		if (action === "emit") {

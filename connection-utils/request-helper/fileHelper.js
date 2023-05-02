@@ -104,7 +104,6 @@ const controlledFileStream = async (file, sliceId, id, feId, arrPos, _callbackCh
 			hashChunk();
 		}
 	} catch (e) {
-		console.log(e);
 	}
 	
 };
