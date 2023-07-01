@@ -3,7 +3,7 @@ const {randString, controlledFileStream, fileUpload, runArbitraryFunctionsOnFile
 const {sendCurrentPositionInGrid, formFileCallback} = require("./routs");
 
 
-const createEmptyObject = (workDirectory, email, publicQuery, apiSetter) => {x
+const createEmptyObject = (workDirectory, email, publicQuery, apiSetter) => {
 	let position = {
 		workDirectory, values: {}, type: "create",
 		email, public: publicQuery, uri: apiSetter, elon: true
