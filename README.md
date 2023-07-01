@@ -80,16 +80,16 @@ CREATE_FILE Create new record and upload file
    const createdRecord = await CREATE_FILE(workDirectory, column, file);
 ```
 
-READ Pagination based search queries
+READ Pagination based search queries for equal queries
 ```js
    const {READ} = require("clp-utils");
    
-   const queryArray = []; // query all data
+   const queryArray = []; // query all data if empty
    
-   const columnToQuery = 0;
+   const columnToQuery = 0; // must be the column or can be _id if the id is provided. may be used with searchType 1 to omit other query params
    const searchValue = "Tom";
-   const secondSearchValue = "Tim";
-   const mustMatchAll = false;
+   const secondSearchValue = "Tim"; // if an array or an object with coords property is provided see below, else this becomes an equal
+   const mustMatchAll = false; // true if must match that query, false if OR query is desired
    const negate = false;
    
    const sampleQuery = [
@@ -98,6 +98,90 @@ READ Pagination based search queries
    const secondSampleQuery = [
         columnToQuery, secondSearchValue, mustMatchAll, negate
    ]
+   queryArray.push(sampleQuery);
+   queryArray.push(secondSampleQuery);
+   
+   const workDirectory = 'workDirectory';
+   const page = 0; // default 0
+   const queryAmount = 10; // value between 0 and 100
+   
+   const dataHandler = await READ(queryArray, workDirectory, page, queryAmount);
+   const {
+     data,  // records [array]
+     p,     // current page [number]
+     count, // toal data count [number]
+     no     // query amount [number]
+   } = dataHandler;
+   
+```
+READ Pagination based search queries for min,max,range queries
+```js
+   const {READ} = require("clp-utils");
+   
+   const queryArray = []; // query all data
+
+   const type = "date"; // number or range
+   const lower = new Date(); // null for greater search only
+   const upper = new Date(); // null for lesser search only
+   // lower === upper for equal search. which is the same as not using this syntax
+   // if upper < lower, the query params switch
+
+   const gt = false; // true for greater / less, false for greater equal / less equal
+   const searchValue = [type, lower, upper, gt];
+
+
+   const columnToQuery = 0;
+   const mustMatchAll = false; // select if AND / OR - query for this query
+   const negate = false;
+   
+   const sampleQuery = [
+        columnToQuery, searchValue, mustMatchAll, negate
+   ];
+ 
+   queryArray.push(sampleQuery);
+   
+   const workDirectory = 'workDirectory';
+   const page = 0; // default 0
+   const queryAmount = 10; // value between 0 and 100
+   
+   const dataHandler = await READ(queryArray, workDirectory, page, queryAmount);
+   const {
+     data,  // records [array]
+     p,     // current page [number]
+     count, // toal data count [number]
+     no     // query amount [number]
+   } = dataHandler;
+   
+```
+
+READ Pagination based search queries for geo queries
+```js
+   const {READ} = require("clp-utils");
+   
+   const queryArray = []; // query all data
+   
+   const columnToQuery = 0;
+
+   const type = "near"; // intersect or within
+   const lng = 52.1;
+   const lat = 4.21;
+   const coords = [[lng, lat]];  // takes the first entry if type is near. else must have at least 3 points, be a polygon and not self intersecting.
+
+   const props = { // relevant for near. may be omitted if not necessary.
+    low: 10,  // minimum distance in meters to look for
+    high: 100, // maximum distance in meters to look for
+    // if high < lower, the values switch
+  }; 
+
+   const searchValue = {type, coords, props};
+
+   const mustMatchAll = false;
+   const negate = false;
+   
+   const sampleQuery = [
+        columnToQuery, searchValue, mustMatchAll, negate
+   ];
+  
    queryArray.push(sampleQuery);
    
    const workDirectory = 'workDirectory';
