@@ -344,7 +344,7 @@ const getS3File = async (workDirectory, column, _id, fn, ft, resourcesId, email,
 			public: publicQuery,
 			uri: apiSetter,
 			_callbackChannel,
-			type: "dbi",
+			type: "db",
 		}
 		
 		socket.on(_callbackChannel, data => {

@@ -196,7 +196,7 @@ LISTEN Register listener to database changes
           // do something with values
         } else if (type === "delete") {
           // do something with id
-          id (id === unlistenId") {
+          id (id === unlistenId) {
             unlisten();
           }
         }
