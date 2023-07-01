@@ -279,6 +279,7 @@ const get = async (queryArray, workDirectory, idx, props) => {
 		apiSetter,
 		email,
 		fromAdvancedSearch,
+		searchType,
 	} = availableProps;
 	
 	let o = sorting || -1;
@@ -295,6 +296,7 @@ const get = async (queryArray, workDirectory, idx, props) => {
 			fromAdvancedSearch: !!fromAdvancedSearch,
 			fields: queryArray,
 			n,
+			searchType,
 		},
 		email,
 		public: publicQuery,

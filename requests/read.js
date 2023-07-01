@@ -7,6 +7,7 @@ const {_get, _getS3File} = require("../connection-utils/requests");
  * @param page {number}
  * @param queryAmount {number}
  * @param sorting {number}
+ * @param searchType {number} -1: and&or, 0: and|or, 1: and&and
  * @param sortByColumn {number}
  * @param email {string}
  * @param publicQuery {boolean}
@@ -20,6 +21,7 @@ const READ = async (
 	page=0,
 	queryAmount=10,
 	sorting=-1,
+	searchType=-1,
 	sortByColumn=undefined,
 	email="",
 	publicQuery=false,
@@ -31,6 +33,7 @@ const READ = async (
 		sortByColumn,
 		publicQuery,
 		apiSetter,
+		searchType,
 	}
 	return await _get(queryArray, workDirectory, page, props)
 }
