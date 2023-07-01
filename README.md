@@ -123,8 +123,9 @@ READ_FILE Read file
    const _id = 'id';
    const filename = 'billing.pdf';
    const filetype = 'application/pdf';
+   const resourcesId = 'resourcesIdf';
    
-   const downloadlink = await READ_FILE(workDirectory, column, _id, filename, filetype);
+   const downloadlink = await READ_FILE(workDirectory, column, _id, filename, filetype, resourcesId);
 ```
 
 UPDATE Update records
