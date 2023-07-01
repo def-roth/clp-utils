@@ -236,7 +236,7 @@ const deleteFile = async (
 		const _callbackChannel = Math.random().toString(36);
 		
 		socket.on(_callbackChannel, data => {
-			data = JSON.parse(data);
+			data = processServerData(data);
 			resolve(data);
 		})
 		
@@ -259,7 +259,7 @@ const deleteFile = async (
 const query  = async (payload) => {
 	return new Promise((resolve, reject) => {
 		socket.on("MoarDataz", data => {
-			resolve(data)
+			resolve(processServerData(data))
 		});
 		changeX("plsMoarSearch", payload)
 	});
@@ -348,7 +348,7 @@ const getS3File = async (workDirectory, column, _id, fn, ft, resourcesId, email,
 		}
 		
 		socket.on(_callbackChannel, data => {
-			resolve(data);
+			resolve(processServerData(data));
 		})
 		
 		changeX("requestHTML", payload);
