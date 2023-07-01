@@ -257,8 +257,11 @@ const deleteFile = async (
 
 
 const query  = async (payload) => {
+	const _callbackChannel = (performance.now()+Math.random()).toString(36)
+	payload._callbackChannel = _callbackChannel;
+	payload.s._callbackChannel = _callbackChannel;
 	return new Promise((resolve, reject) => {
-		socket.on("MoarDataz", data => {
+		socket.on(_callbackChannel, data => {
 			resolve(processServerData(data))
 		});
 		changeX("plsMoarSearch", payload)
