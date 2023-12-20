@@ -5,23 +5,38 @@ const {UPDATE, UPDATE_FILE} = require("./requests/update");
 const {DELETE, DELETE_FILE} = require("./requests/delete");
 const {LISTEN, UNLISTEN} = require("./requests/listen");
 const {loginCredentials, loginToken} = require("./auth/auth");
+const handlers = require("./connection-utils/handlers");
+const requests = require("./connection-utils/requests");
 
-exports.CLP = CLP;
 
-exports.loginCredentials = loginCredentials;
-exports.loginToken = loginToken;
+module.exports = {
+    CLP,
 
-exports.CREATE = CREATE;
-exports.CREATE_FILE = CREATE_FILE;
+    UNLISTEN,
+    LISTEN,
+    DELETE_FILE,
+    DELETE,
+    UPDATE_FILE,
+    UPDATE,
+    READ_FILE,
+    READ,
+    CREATE_FILE,
+    CREATE,
 
-exports.READ = READ;
-exports.READ_FILE = READ_FILE;
+    loginCredentials,
+    loginToken,
 
-exports.UPDATE = UPDATE;
-exports.UPDATE_FILE = UPDATE_FILE;
+    socket: handlers.socket,
 
-exports.DELETE = DELETE;
-exports.DELETE_FILE = DELETE_FILE;
+    emit: handlers.changeX,
+    decode: handlers.processServerData,
 
-exports.LISTEN = LISTEN;
-exports.UNLISTEN = UNLISTEN;
+    query:  requests.query,
+    getOne:  requests.getOne,
+    getSocket:  requests.getSocket,
+    postSocket:  requests.postSocket,
+    uploadSingleFile:  requests._uploadSingleFile,
+    updateValues:  requests.updateValues,
+    getPresignedUrl:  requests.getPresignedUrl,
+    getPresignedHistoryUrl:  requests.getPresignedHistoryUrl,
+}
