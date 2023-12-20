@@ -1,5 +1,7 @@
 // Detects if the code is running on the server or the client
 // If it is running on the server, it will use the node:worker_threads module to load worker
+const {version} = require("../config/config");
+
 let socketWorker;
 const isServer = typeof process !== 'undefined' &&
 	!!process?.release?.name
@@ -7,11 +9,10 @@ const isServer = typeof process !== 'undefined' &&
 
 if (isServer) {
 	const { Worker, } = require('node:worker_threads');
-	const {development, version} = require("../config/config");
 	const workerPath = __dirname+'/socketWorker.js';
 	socketWorker = new Worker(workerPath);
 } else {
-	socketWorker = new Worker( new URL( "./socketWorker.js", import.meta.url ), {type: "module"});
+	socketWorker = new Worker( new URL( "./socketWorkerClient.js", import.meta.url ), {type: "module"});
 }
 
 const proxySocket = {
@@ -112,7 +113,6 @@ function getToken(cookie, key, length) {
 
 class ConnectionHandler {
 	constructor() {
-		this._DEVELOPMENT = development;
 		this._versionControl = version;
 		this.loginchannels = {
 			cookieLoginRoute: true,
