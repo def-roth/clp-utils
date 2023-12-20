@@ -1,8 +1,8 @@
 // Detects if the code is running on the server or the client
 // If it is running on the server, it will use the node:worker_threads module to load worker
 let socketWorker;
-const isServer = (typeof process !== 'undefined') &&
-	(process.release.name.search(/node|io.js/) !== -1);
+const isServer = typeof process !== 'undefined' &&
+	process?.release?.name?.search(/node|io.js/) !== -1;
 
 if (isServer) {
 	const { Worker, } = require('node:worker_threads');
