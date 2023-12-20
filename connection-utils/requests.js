@@ -285,15 +285,10 @@ const deleteFile = async (
 
 
 const query  = async (payload) => {
-	const _callbackChannel = (performance.now()+Math.random()).toString(36)
+	const _callbackChannel = payload._callbackChannel || (performance.now()+Math.random()).toString(36)
 	payload._callbackChannel = _callbackChannel;
 	payload.s._callbackChannel = _callbackChannel;
-	return new Promise((resolve, reject) => {
-		socket.on(_callbackChannel, data => {
-			resolve(processServerData(data))
-		});
-		changeX("plsMoarSearch", payload)
-	});
+	return await postSocket("plsMoarSearch", payload, payload._callbackChannel)
 }
 
 const get = async (queryArray, workDirectory, idx, props) => {
@@ -487,10 +482,7 @@ const postSocket = async (channel, payload, cbChannel) => {
 
 
 
-const query  = async (payload) => {
-	return await postSocket("plsMoarSearch", payload, payload._callbackChannel)
 
-}
 
 const queryComplexValue = (
 	value, _id, type, column, publicQuery, apiSetter, workDirectory, cpx, _callbackChannel
