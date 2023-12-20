@@ -32,22 +32,38 @@ const getNewCreatedId = async (workDirectory, email, publicQuery, apiSetter) => 
 }
 
 
-const createObjectWithValues = (workDirectory, email, publicQuery, apiSetter, values) => {
-	let position = {
-		workDirectory, values: values||{}, type: "create",
-		email, public: publicQuery, uri: apiSetter, elon: true
+const createObjectWithValues = (
+	workDirectory, email, publicQuery, uri, values, _callbackChannel,
+) => {
+	const type = "create";
+	const elon = true;
+	let payload = {
+		workDirectory,
+		values,
+		type,
+		email,
+		public: publicQuery,
+		uri,
+		elon,
+		_callbackChannel,
 	};
-	changeX(sendCurrentPositionInGrid, position);
+
+	changeX("sendCurrentPositionInGrid", payload);
 }
 
 
-const initWithValues = (workDirectory, email, publicQuery, apiSetter, values) => {
+const initWithValues = (workDirectory, values, cbChannel, publicQuery="", apiSetter="", email="") => {
+	const cb = cbChannel || Math.random().toString(16);
+
+
+
 	return new Promise((resolve, reject) => {
-		socket.on(formFileCallback, (dataIn) => {
+		socket.on(cb, (dataIn) => {
 			dataIn = processServerData(dataIn);
+			socket.offAny(cb);
 			resolve(dataIn);
 		});
-		createObjectWithValues(workDirectory, email, publicQuery, apiSetter, values)
+		createObjectWithValues(workDirectory, email, publicQuery, apiSetter, values, cb)
 	});
 }
 
@@ -124,10 +140,12 @@ const deleteEntryPromise = (
 const uploadSingleFile = async (
 
 	workDirectory, publicQuery,
-	apiSetter, _id, column,
+	apiSetter, _id, columnNumber,
 	fileToUpload, asyncFunctions,
 	successCallback
 ) => {
+	let column = parseInt(columnNumber);
+
 	return new Promise(async (resolve, reject) => {
 
 		const _callbackChannel = Math.random().toString(36);
@@ -191,7 +209,7 @@ const uploadSingleFile = async (
 				}
 				if (dataIn.e === "fin" && id) {
 					uploadFiles[filePos] = {...uploadFiles[filePos], ...{uploadId: id, fin: true}};
-					//fileUpload(uploadFiles.filter(x => !x.fin));
+
 					if (successCallback) {
 						try {
 							successCallback(dataIn)

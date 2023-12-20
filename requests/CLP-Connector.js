@@ -31,6 +31,7 @@ class CLP {
 	changeX = handlers.changeX;
 	emit = handlers.changeX;
 	decode = handlers.processServerData;
+	processServerData = handlers.processServerData;
 
 	query = requests.query;
 	getOne = requests.getOne;
@@ -40,6 +41,9 @@ class CLP {
 	updateValues = requests.updateValues;
 	getPresignedUrl = requests.getPresignedUrl;
 	getPresignedHistoryUrl = requests.getPresignedHistoryUrl;
+	initWithValues = requests.initWithValues;
+	createObjectWithValues =  requests.createObjectWithValues;
+	loginSocket = handlers.loginSocket;
 
 }
 

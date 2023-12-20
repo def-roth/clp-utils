@@ -26,10 +26,12 @@ module.exports = {
     loginCredentials,
     loginToken,
 
-    socket: handlers.socket,
 
+    socket: handlers.socket,
+    changeX: handlers.changeX,
     emit: handlers.changeX,
     decode: handlers.processServerData,
+    processServerData: handlers.processServerData,
 
     query:  requests.query,
     getOne:  requests.getOne,
@@ -39,4 +41,8 @@ module.exports = {
     updateValues:  requests.updateValues,
     getPresignedUrl:  requests.getPresignedUrl,
     getPresignedHistoryUrl:  requests.getPresignedHistoryUrl,
+    initWithValues:  requests.initWithValues,
+    createObjectWithValues:  requests.createObjectWithValues,
+    loginSocket:  handlers.loginSocket,
+
 }
