@@ -1,5 +1,5 @@
 const {processServerData, socket} = require("./handlers");
-const EventEmitter = require("events");
+const {EventEmitter} = require("./EventEmitter");
 
 const listener = new EventEmitter();
 

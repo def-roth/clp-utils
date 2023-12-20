@@ -64,7 +64,6 @@ class ProxySocket {
 
 	on = (channel, callback) => {
 		const action = "on";
-		console.log("on", channel, callback)
 		this.onListener[channel] = data => callback(data);
 		socketWorker.postMessage({action, channel});
 	}
@@ -88,10 +87,8 @@ class ProxySocket {
 	}
 
 	listner = e => {
-		console.log(e)
 		const {action, channel, data} = e.data;
 
-		console.log({action, channel, data})
 		if (action === "on") {
 			if (this.onListener[channel]) {
 				this.onListener[channel](data);
@@ -146,7 +143,7 @@ function getToken(cookie, key, length) {
 }
 
 
-class ConnectionHandler {
+export class ConnectionHandler {
 	constructor() {
 		this._versionControl = version;
 		this.loginchannels = {
@@ -172,7 +169,6 @@ class ConnectionHandler {
 
 
 	changeX = (channel, data) => {
-		console.log(channel, data,  this.socket.disconnected, this.loginchannels, this.socket, this )
 		if ( this.socket.disconnected && !this.loginchannels[channel] ) {
 			this.reconnectSocket()
 				.then(async () => {
@@ -244,6 +240,4 @@ class ConnectionHandler {
 	}
 }
 
-module.exports = {
-	ConnectionHandler
-}
+
