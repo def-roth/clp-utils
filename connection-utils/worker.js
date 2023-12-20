@@ -1,17 +1,15 @@
-
 const {version, domain} = require("../config/config");
-const {io} = require("socket.io-client");
+const io = require("socket.io-client");
 
 
 const _versionControl = version;
 const _address = domain;
 
 // we can go for immediate websocket on server side
-const transports = ["websocket" ];
+const transports = ["websocket", "polling" ];
 const upgrade = true;
 const query = { w: 100, h: 100, v: _versionControl };
 
-const ioParams = { query, upgrade, transports };
 
 class PacketContainer {
     constructor(post) {
@@ -61,7 +59,9 @@ class PacketContainer {
 }
 
 class SocketWorker {
-    constructor(post) {
+    constructor(post, transports=["websocket", "polling" ]) {
+        const ioParams = { query, upgrade, transports };
+
         this.socket = io(_address, ioParams);
         this.listeners = {};
         this.packetContainer = new PacketContainer(post);
@@ -90,6 +90,7 @@ class SocketWorker {
         this.socket.off(channel);
     }
     emit = (channel, data) => {
+
         this.socket.emit(channel, data);
     }
 
@@ -173,4 +174,4 @@ class SocketWorker {
     }
 }
 
-export default SocketWorker;
+module.exports = {SocketWorker};

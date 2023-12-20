@@ -1,86 +1,121 @@
 // Detects if the code is running on the server or the client
 // If it is running on the server, it will use the node:worker_threads module to load worker
 const {version} = require("../config/config");
+const {SocketWorker} = require("./worker");
+const {EventEmitter} = require("./EventEmitter");
+const {Worker} = require("node:worker_threads");
+
 
 let socketWorker;
 const isServer = typeof process !== 'undefined' &&
 	!!process?.release?.name
 	&& process?.release?.name?.search(/node|io.js/) !== -1;
 
+let useclientworker = false;
+let addListener;
 if (isServer) {
 	const { Worker, } = require('node:worker_threads');
 	const workerPath = __dirname+'/socketWorker.js';
 	socketWorker = new Worker(workerPath);
-} else {
+	addListener = (listner) => {
+		socketWorker.on("message", listner)
+	}
+}
+else if (useclientworker) {
 	socketWorker = new Worker( new URL( "./socketWorkerClient.js", import.meta.url ), {type: "module"});
+	// must add event listener here
+	addListener = (listner) => {
+		socketWorker.addEventListener("message", listner)
+	}
+
+}
+else {
+
+	const eventProxy = new EventEmitter();
+	const toWorker = (data) => eventProxy.emit("to", {data});
+	const fromWorker = (data) => eventProxy.emit("from", data);
+	socketWorker = new SocketWorker(fromWorker);
+	socketWorker.postMessage = toWorker;
+	eventProxy.on("to", ({data}) => socketWorker.onmessage({data}));
+	// must add event listener here
+	addListener = (listner) => {
+		eventProxy.on("from", listner)
+	}
+
 }
 
-const proxySocket = {
-	onListener: {},
-	onceListener: {},
+class ProxySocket {
+	constructor() {
+		this.onListener = {};
+		this.onceListener = {};
+		this.connected = true;
+	}
 
-	connected: true,
-
-	emit: (channel, data) => {
+	emit = (channel, data) => {
 		const action = "emit";
 		socketWorker.postMessage({action, channel, data});
-	},
+	}
 
-	once: (channel, callback) => {
+	once = (channel, callback) => {
 		const action = "once";
+		this.onceListener[channel] = data => callback(data);
 		socketWorker.postMessage({action, channel});
-		proxySocket.onceListener[channel] = data => callback(data);
-	},
+	}
 
-	on: (channel, callback) => {
+	on = (channel, callback) => {
 		const action = "on";
+		console.log("on", channel, callback)
+		this.onListener[channel] = data => callback(data);
 		socketWorker.postMessage({action, channel});
-		proxySocket.onListener[channel] = data => callback(data);
-	},
+	}
 
-	off: (channel) => {
+	off = (channel) => {
 		const action = "off";
 		socketWorker.postMessage({action, channel});
 
-		proxySocket.onListener[channel] = null;
-		delete proxySocket.onListener[channel];
-	},
+		this.onListener[channel] = null;
+		delete this.onListener[channel];
+	}
 
-	connect: () => {
+	connect = () => {
 		const action = "connect";
 		socketWorker.postMessage({action});
-	},
+	}
 
-	disconnect: () => {
+	disconnect = () => {
 		const action = "disconnect";
 		socketWorker.postMessage({action});
-	},
+	}
 
+	listner = e => {
+		console.log(e)
+		const {action, channel, data} = e.data;
+
+		console.log({action, channel, data})
+		if (action === "on") {
+			if (this.onListener[channel]) {
+				this.onListener[channel](data);
+			}
+		} else if (action === "once") {
+			if (this.onceListener[channel]) {
+				this.onceListener[channel](data);
+				this.onceListener[channel] = null;
+				delete this.onceListener[channel];
+			}
+		} else if (action === "connection") {
+			this.connected = true;
+			this.disconnected = false;
+		} else if (action === "disconnection") {
+			this.connected = false;
+			this.disconnected = true;
+		}
+	}
 }
 
-socketWorker.on("message", e => {
-	const {action, channel, data} = e.data;
-	if (action === "on") {
-		if (proxySocket.onListener[channel]) {
-			proxySocket.onListener[channel](data);
-		}
-	}
-	else if (action === "once") {
-		if (proxySocket.onceListener[channel]) {
-			proxySocket.onceListener[channel](data);
-			proxySocket.onceListener[channel] = null;
-			delete proxySocket.onceListener[channel];
-		}
-	}
-	else if (action === "connection") {
-		proxySocket.connected = true;
-		proxySocket.disconnected = false;
-	}
-	else if (action === "disconnection") {
-		proxySocket.connected = false;
-		proxySocket.disconnected = true;
-	}
-})
+const proxySocket = new ProxySocket(socketWorker);
+
+addListener(proxySocket.listner)
+
 const deepCopy = x => JSON.parse(JSON.stringify(x))
 const wait = async (ms) => {
 	return new Promise((resolve) => {
@@ -125,8 +160,6 @@ class ConnectionHandler {
 		this.socket = proxySocket;
 
 		this.socket.on("disconnect", data => {
-
-
 			setTimeout(async () => {
 				await this.disconnectClient();
 			}, 1000);
@@ -139,6 +172,7 @@ class ConnectionHandler {
 
 
 	changeX = (channel, data) => {
+		console.log(channel, data,  this.socket.disconnected, this.loginchannels, this.socket, this )
 		if ( this.socket.disconnected && !this.loginchannels[channel] ) {
 			this.reconnectSocket()
 				.then(async () => {
@@ -209,7 +243,6 @@ class ConnectionHandler {
 		this.sessionlogin(true);
 	}
 }
-
 
 module.exports = {
 	ConnectionHandler
