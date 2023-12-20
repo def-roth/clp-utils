@@ -1,51 +1,59 @@
-// NODE ONLY
-const { Worker, } = require('node:worker_threads');
-const {development, version} = require("../config/config");
-const workerPath = __dirname+'/socketWorker.js';
+// Detects if the code is running on the server or the client
+// If it is running on the server, it will use the node:worker_threads module to load worker
+let socketWorker;
+const isServer = (typeof process !== 'undefined') &&
+	(process.release.name.search(/node|io.js/) !== -1);
 
-const socketWorker = new Worker(workerPath);
+if (isServer) {
+	const { Worker, } = require('node:worker_threads');
+	const {development, version} = require("../config/config");
+	const workerPath = __dirname+'/socketWorker.js';
+	socketWorker = new Worker(workerPath);
+} else {
+	socketWorker = new Worker( new URL( "./socketWorker.js", import.meta.url ), {type: "module"});
+}
 
 const proxySocket = {
 	onListener: {},
 	onceListener: {},
-	
+
 	connected: true,
-	
+
 	emit: (channel, data) => {
 		const action = "emit";
 		socketWorker.postMessage({action, channel, data});
 	},
-	
+
 	once: (channel, callback) => {
 		const action = "once";
 		socketWorker.postMessage({action, channel});
 		proxySocket.onceListener[channel] = data => callback(data);
 	},
-	
+
 	on: (channel, callback) => {
 		const action = "on";
 		socketWorker.postMessage({action, channel});
 		proxySocket.onListener[channel] = data => callback(data);
 	},
-	
+
 	off: (channel) => {
 		const action = "off";
 		socketWorker.postMessage({action, channel});
-		
+
 		proxySocket.onListener[channel] = null;
 		delete proxySocket.onListener[channel];
 	},
-	
+
 	connect: () => {
 		const action = "connect";
 		socketWorker.postMessage({action});
 	},
-	
+
 	disconnect: () => {
 		const action = "disconnect";
 		socketWorker.postMessage({action});
 	},
-	
+
 }
 
 socketWorker.on("message", e => {
@@ -92,11 +100,11 @@ function getWebtoken(cookie) {
 
 function getToken(cookie, key, length) {
 	let token = "";
-	
+
 	if (cookie.slice(0, length).includes(key)) {
 		token = deepCopy(cookie.split(key)[1]);
 	}
-	
+
 	return token;
 }
 
@@ -109,26 +117,26 @@ class ConnectionHandler {
 			cookieLoginRoute: true,
 			dLink: true,
 		}
-		
+
 		this.upgrade = true;
 		this.query = { w: 0, h: 0, v: this._versionControl };
-		
+
 		this.socket = proxySocket;
-		
+
 		this.socket.on("disconnect", data => {
-			
-			
+
+
 			setTimeout(async () => {
 				await this.disconnectClient();
 			}, 1000);
 		});
 	}
-	
+
 	processServerData = (payload) => {
 		return JSON.parse(payload);
 	}
 
-	
+
 	changeX = (channel, data) => {
 		if ( this.socket.disconnected && !this.loginchannels[channel] ) {
 			this.reconnectSocket()
@@ -141,7 +149,7 @@ class ConnectionHandler {
 			else this.socket.emit(channel);
 		}
 	}
-	
+
 	connectClient = async () => {
 		await this.socket.connect();
 	}
@@ -150,12 +158,12 @@ class ConnectionHandler {
 			this.socket.disconnect();
 		}
 	}
-	
+
 	cleanupChannel = (name) => {
 		this.socket.on(name,()=>{});
 		this.socket.off(name,()=>{});
 	}
-	
+
 	loginSocket = (email, password) => {
 		if (this.socket.disconnected) {
 			this.reconnectSocket().then(()=>this.socket.emit('login', JSON.stringify({email, password})));
@@ -164,7 +172,7 @@ class ConnectionHandler {
 			if (this.socket) this.socket.emit('login', JSON.stringify({email, password}));
 		}
 	};
-	
+
 	tokenLogin = (webtoken) => {
 		if (this.socket.disconnected) {
 			this.reconnectSocket().then(()=>this.socket.emit("cookieLoginRoute", JSON.stringify({webtoken})));
@@ -173,18 +181,18 @@ class ConnectionHandler {
 			this.socket.emit("cookieLoginRoute", JSON.stringify({webtoken}));
 		}
 	}
-	
+
 	sessionlogin = (reconnect) => {
 		const cookies = JSON.parse(JSON.stringify(document.cookie)).split(';');
 		let cookie = '';
 		let webtoken = '';
-		
+
 		for (let i = 0; i < cookies.length; i++) {
 			cookie = cookie || getCookieSid(cookies[i]);
 			webtoken = webtoken || getWebtoken(cookies[i]);
 		}
-		
-		
+
+
 		if (cookie || webtoken) {
 			this.changeX("cookieLoginRoute", {cookie, webtoken, reconnect: !!reconnect});
 			return false;
