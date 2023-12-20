@@ -58,11 +58,12 @@ const initWithValues = (workDirectory, values, cbChannel, publicQuery="", apiSet
 
 
 	return new Promise((resolve, reject) => {
-		socket.on(cb, (dataIn) => {
+		const fn = (dataIn) => {
 			dataIn = processServerData(dataIn);
-			socket.offAny(cb);
+			socket.off(cb, fn);
 			resolve(dataIn);
-		});
+		};
+		socket.on(cb, fn);
 		createObjectWithValues(workDirectory, email, publicQuery, apiSetter, values, cb)
 	});
 }

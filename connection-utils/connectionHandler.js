@@ -76,6 +76,14 @@ class ProxySocket {
 		delete this.onListener[channel];
 	}
 
+	offAny = (channel) => {
+		const action = "offAny";
+		socketWorker.postMessage({action, channel});
+
+		this.onListener[channel] = null;
+		delete this.onListener[channel];
+	}
+
 	connect = () => {
 		const action = "connect";
 		socketWorker.postMessage({action});
